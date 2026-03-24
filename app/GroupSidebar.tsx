@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../supabase';
-import { useLocalParticipant, MediaDeviceMenu } from '@livekit/components-react';
+import { useLocalParticipant, MediaDeviceMenu, useParticipants } from '@livekit/components-react';
 
 interface GroupSidebarProps {
   username: string;
@@ -74,11 +74,12 @@ function ScreenShareToggle() {
 
 export default function GroupSidebar({ username, activeChannel, onChannelSelect, isInVoice, onLeaveVoice }: GroupSidebarProps) {
   const [showSettings, setShowSettings] = useState(false);
+  const participants = useParticipants();
 
   return (
     <div className="w-64 bg-gray-50 flex flex-col border-r border-gray-200 shrink-0">
       <div className="h-16 border-b border-gray-200 flex items-center px-4 font-bold shadow-sm text-gray-800 text-lg bg-gray-100/50">
-        Bizim Grup
+        Bizim upGr
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-6">
         {/* Metin Kanalları */}
@@ -105,13 +106,22 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
           >
             <span className={`mr-2 ${activeChannel === 'voice' ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-600'}`}>🔊</span> Genel Ses
           </div>
-          {/* Ses Kanalına Bağlı Kullanıcı Örneği */}
-          <div className="pl-8 pr-2 pb-2 mt-1 space-y-1">
-            <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-1 rounded transition-colors">
-              <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-green-500"></div>
-              <span className="text-sm text-gray-700 font-medium">Ahmet</span>
+          {/* Ses Kanalına Bağlı Dinamik Kullanıcı Listesi */}
+          {participants.length > 0 && (
+            <div className="pl-8 pr-2 pb-2 mt-1 space-y-1">
+              {participants.map((p) => (
+                <div key={p.sid} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-1 rounded transition-colors">
+                  <div className={`w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${p.isSpeaking ? 'ring-2 ring-green-500 ring-offset-1 ring-offset-gray-50' : ''}`}>
+                    {p.identity ? p.identity.charAt(0).toUpperCase() : '?'}
+                  </div>
+                  <span className={`text-sm truncate font-medium ${p.isSpeaking ? 'text-gray-900' : 'text-gray-600'}`}>
+                    {p.identity}
+                  </span>
+                  {!p.isMicrophoneEnabled && <span className="text-red-500 text-xs ml-auto">🔇</span>}
+                </div>
+              ))}
             </div>
-          </div>
+          )}
           
         </div>
       </div>

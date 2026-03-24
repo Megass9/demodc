@@ -20,7 +20,7 @@ function VoiceUsers() {
     <div className="flex flex-wrap gap-6 p-8 items-start content-start flex-1 overflow-y-auto bg-gray-900">
       {participants.map((p) => (
         <div key={p.sid} className="flex flex-col items-center">
-          <div className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold bg-blue-600 text-white shadow-lg transition-all duration-200 ${p.isSpeaking ? 'ring-4 ring-green-500 ring-offset-4 ring-offset-gray-900 scale-105' : 'ring-4 ring-transparent'}`}>
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold bg-blue-600 text-white shadow-lg ${p.isSpeaking ? 'ring-4 ring-green-500 ring-offset-4 ring-offset-gray-900 scale-105' : 'ring-4 ring-transparent'}`}>
             {p.identity ? p.identity.charAt(0).toUpperCase() : '?'}
           </div>
           <div className="mt-3 bg-gray-800 px-3 py-1 rounded-full text-sm font-medium text-white shadow-sm flex items-center gap-2">

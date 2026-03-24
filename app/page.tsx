@@ -116,6 +116,11 @@ export default function DiscordClone() {
         publishDefaults: {
           // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
           screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
+        },
+        audioCaptureDefaults: {
+          echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
+          noiseSuppression: true, // Arka plan gürültülerini engeller
+          autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
         }
       }}
     >
