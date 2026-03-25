@@ -140,7 +140,13 @@ function ScreenShareToggle() {
 
     try {
       console.log('Toggling screen share...');
-      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { audio: true });
+      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { 
+        audio: {
+          echoCancellation: false, // Yankı engelleyiciyi kapat
+          noiseSuppression: false, // Gürültü engelleyiciyi kapat
+          autoGainControl: false   // Otomatik ses seviyesi dengelemeyi kapat
+        }
+      });
     } catch (err) {
       console.error('Ekran paylaşımı hatası:', err);
     }
@@ -156,7 +162,13 @@ function ScreenShareToggle() {
       await window.electron.setSource(sourceId);
       
       console.log('Enabling screen share in LiveKit...');
-      await localParticipant.setScreenShareEnabled(true, { audio: true });
+      await localParticipant.setScreenShareEnabled(true, { 
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false
+        } 
+      });
     } catch (err) {
       console.error('Ekran paylaşımı başlatılamadı:', err);
     }

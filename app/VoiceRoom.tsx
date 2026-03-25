@@ -89,6 +89,7 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   const containerRef = React.useRef<HTMLDivElement>(null);
   const audioTracks = useParticipantTracks([Track.Source.ScreenShareAudio], trackRef.participant.identity);
   const audioTrackRef = audioTracks[0];
+  const [volume, setVolume] = React.useState(1);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -101,8 +102,24 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   return (
     <div ref={containerRef} className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 h-[300px] aspect-video flex items-center justify-center shadow-2xl group/screen glass shrink-0">
        <VideoTrack trackRef={trackRef} className="w-full h-full object-contain" />
-       {audioTrackRef && <AudioTrack trackRef={audioTrackRef} />}
+       {audioTrackRef && <AudioTrack trackRef={audioTrackRef} volume={volume} />}
        
+       {/* Ses Kontrolü (Sadece diğer kullanıcıların yayınlarında ve seste yayın varsa görünür) */}
+       {!isLocal && audioTrackRef && (
+         <div className="absolute top-4 left-4 glass px-3 py-2 rounded-xl border-white/5 opacity-0 group-hover/screen:opacity-100 transition-all z-20 flex items-center gap-3">
+           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+           <input
+             type="range"
+             min="0"
+             max="1"
+             step="0.01"
+             value={volume}
+             onChange={(e) => setVolume(parseFloat(e.target.value))}
+             className="w-24 h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+           />
+         </div>
+       )}
+
        {isLocal && (
          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover/screen:opacity-100 transition-opacity">
            <div className="glass px-4 py-2 rounded-xl border-white/10">
