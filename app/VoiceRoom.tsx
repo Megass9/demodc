@@ -58,6 +58,56 @@ function UserAvatar({ p }: { p: Participant }) {
   );
 }
 
+function ParticipantCard({ p }: { p: Participant }) {
+  const { localParticipant } = useLocalParticipant();
+  const isLocal = p.sid === localParticipant?.sid;
+  const [volume, setVolume] = React.useState(1);
+
+  const micTracks = useParticipantTracks([Track.Source.Microphone], p.identity);
+  const micTrackRef = micTracks[0];
+
+  // Kaydırıcı değiştiğinde diğer kullanıcının ses düzeyini günceller
+  React.useEffect(() => {
+    if (isLocal || !micTrackRef?.publication?.track) return;
+    (micTrackRef.publication.track as any).setVolume(volume);
+  }, [volume, micTrackRef, isLocal]);
+
+  return (
+    <ParticipantContext.Provider value={p}>
+      <div className="flex flex-col items-center group/user relative">
+        <UserAvatar p={p} />
+        <div className="mt-4 glass rounded-2xl px-4 py-2 flex items-center gap-2 border-white/5 group-hover/user:border-white/10 transition-all z-10">
+          <span className="text-sm font-bold text-white tracking-tight">{p.identity}</span>
+          {!p.isMicrophoneEnabled && (
+            <div className="w-5 h-5 flex items-center justify-center rounded-lg bg-rose-500/20 text-rose-500">
+              <svg fill="currentColor" viewBox="0 0 24 24" className="w-3 h-3"><path d="M12 2c1.66 0 3 1.34 3 3v7c0 1.66-1.34 3-3 3s-3-1.34-3-3V5c0-1.66 1.34-3 3-3zm7 10h-1.7c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.41 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72z" /><path d="M4.41 2.86L3 4.27l16.73 16.73 1.41-1.41L4.41 2.86z" /></svg>
+            </div>
+          )}
+          <ConnectionQualityIndicator className="w-4 h-4 opacity-50" />
+        </div>
+
+        {/* Ses Kontrolü (Sadece diğer kullanıcılar için avatar üzerinde hover olunca belirir) */}
+        {!isLocal && (
+          <div className="absolute inset-x-0 bottom-14 flex justify-center opacity-0 group-hover/user:opacity-100 transition-all duration-300 z-20 translate-y-2 group-hover/user:translate-y-0 pointer-events-none">
+            <div className="glass px-3 py-2 rounded-xl border border-white/10 flex items-center gap-2 shadow-xl pointer-events-auto">
+              <svg className="w-3.5 h-3.5 text-white/80 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </ParticipantContext.Provider>
+  );
+}
+
 function VoiceUsers() {
   const participants = useParticipants();
   
@@ -65,20 +115,7 @@ function VoiceUsers() {
     <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 justify-items-center">
         {participants.map((p) => (
-          <ParticipantContext.Provider value={p} key={p.sid}>
-            <div className="flex flex-col items-center group/user">
-              <UserAvatar p={p} />
-              <div className="mt-4 glass rounded-2xl px-4 py-2 flex items-center gap-2 border-white/5 group-hover/user:border-white/10 transition-all">
-                <span className="text-sm font-bold text-white tracking-tight">{p.identity}</span>
-                {!p.isMicrophoneEnabled && (
-                  <div className="w-5 h-5 flex items-center justify-center rounded-lg bg-rose-500/20 text-rose-500">
-                    <svg fill="currentColor" viewBox="0 0 24 24" className="w-3 h-3"><path d="M12 2c1.66 0 3 1.34 3 3v7c0 1.66-1.34 3-3 3s-3-1.34-3-3V5c0-1.66 1.34-3 3-3zm7 10h-1.7c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.41 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72z" /><path d="M4.41 2.86L3 4.27l16.73 16.73 1.41-1.41L4.41 2.86z" /></svg>
-                  </div>
-                )}
-                <ConnectionQualityIndicator className="w-4 h-4 opacity-50" />
-              </div>
-            </div>
-          </ParticipantContext.Provider>
+          <ParticipantCard p={p} key={p.sid} />
         ))}
       </div>
     </div>

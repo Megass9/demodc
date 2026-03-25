@@ -325,10 +325,10 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
 
       {/* Ayarlar Modalı (Popup) */}
       {showSettings && (
-        <div className="fixed inset-0 bg-[#0f172a]/80 z-[100] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in">
-          <div className="glass-card rounded-[32px] w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden" data-lk-theme="default">
+        <div className="fixed inset-0 bg-[#0f172a]/80 z-[100] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in" onClick={() => setShowSettings(false)}>
+          <div className="glass-card rounded-[32px] w-full max-w-lg flex flex-col shadow-2xl relative overflow-hidden" data-lk-theme="default" onClick={e => e.stopPropagation()}>
             {/* Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
               <div>
