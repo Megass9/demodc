@@ -12,7 +12,8 @@ import {
   useTrackVolume,
   useParticipantTracks,
   isTrackReference,
-  useLocalParticipant
+  useLocalParticipant,
+  AudioTrack
 } from '@livekit/components-react';
 import { Track, Participant, RoomEvent } from 'livekit-client';
 
@@ -86,6 +87,8 @@ function VoiceUsers() {
 
 function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolean }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const audioTracks = useParticipantTracks([Track.Source.ScreenShareAudio], trackRef.participant.identity);
+  const audioTrackRef = audioTracks[0];
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -98,6 +101,7 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   return (
     <div ref={containerRef} className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 h-[300px] aspect-video flex items-center justify-center shadow-2xl group/screen glass shrink-0">
        <VideoTrack trackRef={trackRef} className="w-full h-full object-contain" />
+       {audioTrackRef && <AudioTrack trackRef={audioTrackRef} />}
        
        {isLocal && (
          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover/screen:opacity-100 transition-opacity">

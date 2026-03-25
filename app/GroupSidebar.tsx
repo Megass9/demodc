@@ -141,7 +141,7 @@ function ScreenShareToggle() {
 
     try {
       console.log('Toggling screen share...');
-      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
+      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { audio: true });
     } catch (err) {
       console.error('Ekran paylaşımı hatası:', err);
     }
@@ -158,7 +158,7 @@ function ScreenShareToggle() {
       await window.electron.setSource(sourceId);
       
       console.log('Enabling screen share in LiveKit...');
-      await localParticipant.setScreenShareEnabled(true);
+      await localParticipant.setScreenShareEnabled(true, { audio: true });
     } catch (err) {
       console.error('Ekran paylaşımı başlatılamadı:', err);
     }
