@@ -130,8 +130,7 @@ function ScreenShareToggle() {
       return;
     }
 
-    // @ts-ignore
-    const isElectron = typeof window !== 'undefined' && !!window.electron;
+    const isElectron = typeof window !== 'undefined' && !!(window as any).electron;
     console.log('HandleToggle: isElectron:', isElectron, 'isEnabled:', isScreenShareEnabled);
     
     if (isElectron && !isScreenShareEnabled) {
@@ -153,7 +152,6 @@ function ScreenShareToggle() {
     if (!localParticipant) return;
 
     try {
-      // @ts-ignore
       console.log('Setting source in Electron...');
       await window.electron.setSource(sourceId);
       

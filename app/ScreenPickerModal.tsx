@@ -21,9 +21,7 @@ export default function ScreenPickerModal({ onSelect, onClose }: ScreenPickerMod
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        // @ts-ignore
         if (window.electron && window.electron.getSources) {
-          // @ts-ignore
           const res = await window.electron.getSources();
           setSources(res);
         }
