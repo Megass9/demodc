@@ -1,0 +1,89 @@
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import ChatArea from './ChatArea';
+import GroupSidebar from './GroupSidebar';
+import VoiceRoom from './VoiceRoom';
+import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
+import { ScreenSharePresets } from 'livekit-client';
+import { KrispNoiseFilter } from '@livekit/krisp-noise-filter';
+import '@livekit/components-styles';
+
+interface DiscordAppProps {
+  session: any;
+}
+
+export default function DiscordApp({ session }: DiscordAppProps) {
+  const [activeChannel, setActiveChannel] = useState<'chat' | 'voice'>('chat');
+  const [isInVoice, setIsInVoice] = useState(false);
+  const [voiceToken, setVoiceToken] = useState("");
+  const liveKitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
+
+  useEffect(() => {
+    if (session) {
+      const currentUsername = session.user.email.split('@')[0];
+      fetch(`/livekit?room=Genel Ses&username=${currentUsername}`)
+        .then(res => res.json())
+        .then(data => setVoiceToken(data.token))
+        .catch(err => console.error("Token hatası:", err));
+    }
+  }, [session]);
+
+  const currentUsername = session.user.email.split('@')[0];
+
+  const handleChannelSelect = (channel: 'chat' | 'voice') => {
+    setActiveChannel(channel);
+    if (channel === 'voice') setIsInVoice(true);
+  };
+
+  return (
+    <LiveKitRoom
+      video={false}
+      audio={isInVoice}
+      token={voiceToken}
+      serverUrl={liveKitUrl}
+      connect={isInVoice && !!voiceToken} // Sadece butona tıklandığında ve token varsa bağlanır
+      options={{
+        publishDefaults: {
+          // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
+          screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
+          dtx: true // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
+        },
+        audioCaptureDefaults: {
+          echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
+          noiseSuppression: true, // Tarayıcının standart arka plan gürültü engelleyicisi
+          autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
+          // Discord'un kullandığı Krisp Yapay Zeka (AI) Gürültü Engelleyicisi:
+          processor: KrispNoiseFilter(), 
+        }
+      }}
+    >
+      <div className="flex h-screen w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans relative">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div className="flex flex-row w-full h-full relative z-10">
+          <GroupSidebar
+            username={currentUsername}
+            activeChannel={activeChannel}
+            onChannelSelect={handleChannelSelect}
+            isInVoice={isInVoice}
+            onLeaveVoice={() => { setIsInVoice(false); setActiveChannel('chat'); }}
+          />
+
+          <main className="flex-1 flex flex-col relative overflow-hidden">
+            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'chat' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
+              <ChatArea username={currentUsername} />
+            </div>
+
+            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'voice' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
+              {isInVoice && <VoiceRoom room="Genel Ses" />}
+            </div>
+          </main>
+        </div>
+
+        <RoomAudioRenderer />
+      </div>
+    </LiveKitRoom>
+  );
+}

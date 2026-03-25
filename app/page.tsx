@@ -2,23 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
-import ChatArea from './ChatArea';
-import GroupSidebar from './GroupSidebar';
-import VoiceRoom from './VoiceRoom';
-import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
-import { ScreenSharePresets } from 'livekit-client';
-import { KrispNoiseFilter } from '@livekit/krisp-noise-filter';
-import '@livekit/components-styles';
+import dynamic from 'next/dynamic';
+
+const DynamicDiscordApp = dynamic(() => import('./DiscordApp'), { ssr: false });
 
 export default function DiscordClone() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeChannel, setActiveChannel] = useState<'chat' | 'voice'>('chat');
-
-  // Ses bağlantısı durumları
-  const [isInVoice, setIsInVoice] = useState(false);
-  const [voiceToken, setVoiceToken] = useState("");
-  const liveKitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
   // Form state'leri
   const [email, setEmail] = useState('');
@@ -40,17 +30,6 @@ export default function DiscordClone() {
 
     return () => subscription.unsubscribe();
   }, []);
-
-  // Kullanıcı giriş yaptıktan sonra LiveKit token'ını alıp arka planda hazır bekletiyoruz
-  useEffect(() => {
-    if (session) {
-      const currentUsername = session.user.email.split('@')[0];
-      fetch(`/livekit?room=Genel Ses&username=${currentUsername}`)
-        .then(res => res.json())
-        .then(data => setVoiceToken(data.token))
-        .catch(err => console.error("Token hatası:", err));
-    }
-  }, [session]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,68 +134,5 @@ export default function DiscordClone() {
     );
   }
 
-  // E-posta adresinin @ işaretinden önceki kısmını kullanıcı adı yapıyoruz (örn: ahmet@mail.com -> ahmet)
-  const currentUsername = session.user.email.split('@')[0];
-
-  const handleChannelSelect = (channel: 'chat' | 'voice') => {
-    setActiveChannel(channel);
-    if (channel === 'voice') setIsInVoice(true); // Sese tıklandığında hemen bağlan
-  };
-
-  return (
-    <LiveKitRoom
-      video={false}
-      audio={isInVoice}
-      token={voiceToken}
-      serverUrl={liveKitUrl}
-      connect={isInVoice && !!voiceToken} // Sadece butona tıklandığında ve token varsa bağlanır
-      options={{
-        publishDefaults: {
-          // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
-          screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
-          audio: {
-            dtx: true // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
-          }
-        },
-        audioCaptureDefaults: {
-          echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
-          noiseSuppression: true, // Tarayıcının standart arka plan gürültü engelleyicisi
-          autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
-          // Discord'un kullandığı Krisp Yapay Zeka (AI) Gürültü Engelleyicisi:
-          processor: KrispNoiseFilter(), 
-        }
-      }}
-    >
-      {/* LiveKitRoom varsayılan olarak dikey dizer, yatay (yan yana) tasarım için kendi wrapper div'imizi ekliyoruz */}
-      <div className="flex h-screen w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans relative">
-        {/* Subtle Background Effects */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div className="flex flex-row w-full h-full relative z-10">
-          <GroupSidebar
-            username={currentUsername}
-            activeChannel={activeChannel}
-            onChannelSelect={handleChannelSelect}
-            isInVoice={isInVoice}
-            onLeaveVoice={() => { setIsInVoice(false); setActiveChannel('chat'); }}
-          />
-
-          <main className="flex-1 flex flex-col relative overflow-hidden">
-            {/* Odalar arası geçişte bileşeni yok etmiyoruz, sadece görünmez yapıyoruz */}
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'chat' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
-              <ChatArea username={currentUsername} />
-            </div>
-
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'voice' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
-              {isInVoice && <VoiceRoom room="Genel Ses" />}
-            </div>
-          </main>
-        </div>
-
-        {/* Odadaki konuşmaları duymak için */}
-        <RoomAudioRenderer />
-      </div>
-    </LiveKitRoom>
-  );
+  return <DynamicDiscordApp session={session} />;
 }
