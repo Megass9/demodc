@@ -6,7 +6,6 @@ import GroupSidebar from './GroupSidebar';
 import VoiceRoom from './VoiceRoom';
 import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
 import { ScreenSharePresets } from 'livekit-client';
-import { KrispNoiseFilter } from '@livekit/krisp-noise-filter';
 import '@livekit/components-styles';
 
 interface DiscordAppProps {
@@ -53,8 +52,6 @@ export default function DiscordApp({ session }: DiscordAppProps) {
           echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
           noiseSuppression: true, // Tarayıcının standart arka plan gürültü engelleyicisi
           autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
-          // Discord'un kullandığı Krisp Yapay Zeka (AI) Gürültü Engelleyicisi:
-          processor: KrispNoiseFilter(), 
         }
       }}
     >
