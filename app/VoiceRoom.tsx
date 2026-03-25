@@ -11,7 +11,8 @@ import {
   useIsSpeaking,
   useTrackVolume,
   useParticipantTracks,
-  isTrackReference
+  isTrackReference,
+  useLocalParticipant
 } from '@livekit/components-react';
 import { Track, Participant, RoomEvent } from 'livekit-client';
 
@@ -83,7 +84,7 @@ function VoiceUsers() {
   );
 }
 
-function ScreenShareItem({ trackRef }: { trackRef: any }) {
+function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolean }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const toggleFullScreen = () => {
@@ -95,17 +96,28 @@ function ScreenShareItem({ trackRef }: { trackRef: any }) {
   };
 
   return (
-    <div ref={containerRef} className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 flex-1 min-w-[360px] flex items-center justify-center shadow-2xl group/screen glass">
+    <div ref={containerRef} className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 h-[300px] aspect-video flex items-center justify-center shadow-2xl group/screen glass shrink-0">
        <VideoTrack trackRef={trackRef} className="w-full h-full object-contain" />
-       <div className="absolute bottom-4 left-4 glass rounded-xl px-4 py-2 border-white/5">
+       
+       {isLocal && (
+         <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover/screen:opacity-100 transition-opacity">
+           <div className="glass px-4 py-2 rounded-xl border-white/10">
+             <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">Sonsuz döngüyü önlemek için pencereyi küçültebilir veya başka ekran seçebilirsiniz</p>
+           </div>
+         </div>
+       )}
+       
+       <div className="absolute bottom-4 left-4 glass rounded-xl px-4 py-2 border-white/5 z-20">
          <div className="flex items-center gap-2">
            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
-           <span className="text-xs font-black text-white/90 uppercase tracking-widest">{trackRef.participant.identity} EKRANI</span>
+           <span className="text-xs font-black text-white/90 uppercase tracking-widest">
+             {isLocal ? 'EKRANINIZ' : `${trackRef.participant.identity} EKRANI`}
+           </span>
          </div>
        </div>
        <button 
          onClick={toggleFullScreen}
-         className="absolute top-4 right-4 glass p-3 rounded-xl border-white/5 opacity-0 group-hover/screen:opacity-100 transition-all hover:bg-white/10 text-white"
+         className="absolute top-4 right-4 glass p-3 rounded-xl border-white/5 opacity-0 group-hover/screen:opacity-100 transition-all hover:bg-white/10 text-white z-20"
        >
          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
        </button>
@@ -115,13 +127,20 @@ function ScreenShareItem({ trackRef }: { trackRef: any }) {
 
 function ScreenShares() {
   const tracks = useTracks([{ source: Track.Source.ScreenShare, withPlaceholder: false }]);
+  const { localParticipant } = useLocalParticipant();
+  
+  console.log('Room Status:', localParticipant?.sid ? 'Connected' : 'Connecting/Error');
+  console.log('Detected ScreenShare Tracks:', tracks.length);
+  
   if (tracks.length === 0) return null;
 
   return (
     <div className="flex gap-6 p-6 overflow-x-auto custom-scrollbar-horizontal bg-white/5 border-b border-white/5 max-h-[60vh] shrink-0">
-      {tracks.map((trackRef) => (
-        <ScreenShareItem key={`${trackRef.participant.sid}-${trackRef.source}`} trackRef={trackRef} />
-      ))}
+      {tracks.map((trackRef) => {
+        const isLocalUser = trackRef.participant.sid === localParticipant?.sid;
+        console.log('Rendering Track for:', trackRef.participant.identity, 'isLocalUser:', isLocalUser, 'SID:', trackRef.participant.sid);
+        return <ScreenShareItem key={`${trackRef.participant.sid}-${trackRef.source}`} trackRef={trackRef} isLocal={isLocalUser} />;
+      })}
     </div>
   );
 }

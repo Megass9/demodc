@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { supabase } from '../supabase';
 import { useLocalParticipant, MediaDeviceMenu, useParticipants, useIsSpeaking, useTrackVolume, useParticipantTracks, isTrackReference } from '@livekit/components-react';
 import { Participant, Track } from 'livekit-client';
+import ScreenPickerModal from './ScreenPickerModal';
 
 interface GroupSidebarProps {
   username: string;
@@ -120,40 +121,78 @@ function CameraToggle() {
 function ScreenShareToggle() {
   const { localParticipant } = useLocalParticipant();
   const isScreenShareEnabled = localParticipant?.isScreenShareEnabled ?? false;
+  const [showPicker, setShowPicker] = useState(false);
   
   const handleToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (localParticipant) {
-      try {
-        await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, {
-          resolution: { width: 1920, height: 1080, frameRate: 30 }
-        });
-      } catch (err) {
-        console.error('Ekran paylaşımı hatası:', err);
-      }
+    if (!localParticipant) {
+      console.warn('HandleToggle: No local participant');
+      return;
+    }
+
+    // @ts-ignore
+    const isElectron = typeof window !== 'undefined' && !!window.electron;
+    console.log('HandleToggle: isElectron:', isElectron, 'isEnabled:', isScreenShareEnabled);
+    
+    if (isElectron && !isScreenShareEnabled) {
+      setShowPicker(true);
+      return;
+    }
+
+    try {
+      console.log('Toggling screen share...');
+      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
+    } catch (err) {
+      console.error('Ekran paylaşımı hatası:', err);
+    }
+  };
+
+  const handleSourceSelect = async (sourceId: string) => {
+    console.log('Source selected:', sourceId);
+    setShowPicker(false);
+    if (!localParticipant) return;
+
+    try {
+      // @ts-ignore
+      console.log('Setting source in Electron...');
+      await window.electron.setSource(sourceId);
+      
+      console.log('Enabling screen share in LiveKit...');
+      await localParticipant.setScreenShareEnabled(true);
+    } catch (err) {
+      console.error('Ekran paylaşımı başlatılamadı:', err);
     }
   };
 
   return (
-    <button 
-      onClick={handleToggle}
-      disabled={!localParticipant}
-      className={`p-2 rounded-xl transition-all active:scale-90 ${
-        !localParticipant 
-          ? 'opacity-50 cursor-wait text-slate-500' 
-          : isScreenShareEnabled 
-            ? 'text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 shadow-lg shadow-indigo-500/10' 
-            : 'text-slate-400 bg-white/5 hover:bg-white/10'
-      }`}
-      title={isScreenShareEnabled ? 'Ekran Paylaşımını Durdur' : 'Ekran Paylaş'}
-    >
-      {isScreenShareEnabled ? (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M2 3h20v14H2z"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="3" y1="3" x2="21" y2="17"/></svg>
-      ) : (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <>
+      <button 
+        onClick={handleToggle}
+        disabled={!localParticipant}
+        className={`p-2 rounded-xl transition-all active:scale-90 ${
+          !localParticipant 
+            ? 'opacity-50 cursor-wait text-slate-500' 
+            : isScreenShareEnabled 
+              ? 'text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 shadow-lg shadow-indigo-500/10' 
+              : 'text-slate-400 bg-white/5 hover:bg-white/10'
+        }`}
+        title={isScreenShareEnabled ? 'Ekran Paylaşımını Durdur' : 'Ekran Paylaş'}
+      >
+        {isScreenShareEnabled ? (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M2 3h20v14H2z"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="3" y1="3" x2="21" y2="17"/></svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        )}
+      </button>
+
+      {showPicker && (
+        <ScreenPickerModal 
+          onSelect={handleSourceSelect} 
+          onClose={() => setShowPicker(false)} 
+        />
       )}
-    </button>
-  )
+    </>
+  );
 }
 
 export default function GroupSidebar({ username, activeChannel, onChannelSelect, isInVoice, onLeaveVoice }: GroupSidebarProps) {
@@ -339,7 +378,12 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
                  <div className="font-bold text-white tracking-tight">{username}</div>
                </div>
                <button 
-                 onClick={() => { supabase.auth.signOut(); setShowSettings(false); }} 
+                 onClick={async () => { 
+                   await supabase.auth.signOut(); 
+                   setShowSettings(false); 
+                   // Safyayı tamamen sıfırlayıp giriş ekranına yönlendiriyoruz
+                   window.location.href = '/'; 
+                 }} 
                  className="px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black transition-all active:scale-95 shadow-lg shadow-rose-600/20 flex items-center gap-2"
                >
                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
