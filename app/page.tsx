@@ -7,6 +7,7 @@ import GroupSidebar from './GroupSidebar';
 import VoiceRoom from './VoiceRoom';
 import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
 import { ScreenSharePresets } from 'livekit-client';
+import { KrispNoiseFilter } from '@livekit/krisp-noise-filter';
 import '@livekit/components-styles';
 
 export default function DiscordClone() {
@@ -173,11 +174,16 @@ export default function DiscordClone() {
         publishDefaults: {
           // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
           screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
+          audio: {
+            dtx: true // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
+          }
         },
         audioCaptureDefaults: {
           echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
-          noiseSuppression: true, // Arka plan gürültülerini engeller
+          noiseSuppression: true, // Tarayıcının standart arka plan gürültü engelleyicisi
           autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
+          // Discord'un kullandığı Krisp Yapay Zeka (AI) Gürültü Engelleyicisi:
+          processor: KrispNoiseFilter(), 
         }
       }}
     >

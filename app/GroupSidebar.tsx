@@ -25,8 +25,8 @@ function ParticipantItem({ participant }: { participant: Participant }) {
   // useTrackVolume için trackRef'in geçerli bir TrackReference olduğundan emin oluyoruz
   const volume = useTrackVolume(trackRef && isTrackReference(trackRef) ? trackRef : undefined);
   
-  // Eğer VAD konuşuyor diyorsa VEYA ses seviyesi belli bir eşiğin üzerindeyse "konuşuyor" kabul ediyoruz.
-  const isActuallySpeaking = isSpeaking || volume > 0.12;
+  // Yalnızca LiveKit'in VAD (İnsan Sesi Algılama) sistemi onaylarsa "konuşuyor" say (Gürültüleri engeller)
+  const isActuallySpeaking = isSpeaking && volume > 0.05;
   
   return (
     <div key={participant.sid} className="flex items-center gap-3 p-2 rounded-xl border border-transparent hover:border-white/5 hover:bg-white/5 transition-all group/user">

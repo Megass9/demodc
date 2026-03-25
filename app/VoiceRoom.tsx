@@ -27,8 +27,8 @@ function UserAvatar({ p }: { p: Participant }) {
   const trackRef = tracks[0];
   const volume = useTrackVolume(trackRef && isTrackReference(trackRef) ? trackRef : undefined);
   
-  // Real-time audio detection for zero latency
-  const isActuallySpeaking = isSpeaking || volume > 0.12;
+  // Yalnızca insan sesi algılandığında ve minimal bir ses eşiği aşıldığında parlamayı yak
+  const isActuallySpeaking = isSpeaking && volume > 0.05;
 
   const cameraPub = p.getTrackPublication(Track.Source.Camera);
   const isCameraEnabled = p.isCameraEnabled && cameraPub;
