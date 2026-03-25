@@ -47,7 +47,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
         publishDefaults: {
           // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
           screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
-          dtx: true // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
+          dtx: true, // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
         },
         audioCaptureDefaults: {
           echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
