@@ -68,9 +68,19 @@ function ParticipantCard({ p }: { p: Participant }) {
 
   // Kaydırıcı değiştiğinde diğer kullanıcının ses düzeyini günceller
   React.useEffect(() => {
-    if (isLocal || !micTrackRef?.publication?.track) return;
-    (micTrackRef.publication.track as any).setVolume(volume);
-  }, [volume, micTrackRef, isLocal]);
+    const track = micTrackRef?.publication?.track as any;
+    if (isLocal || !track) return;
+    
+    if (typeof track.setVolume === 'function') {
+      track.setVolume(volume);
+    }
+    
+    if (track.attachedElements) {
+      track.attachedElements.forEach((el: HTMLMediaElement) => {
+        el.volume = volume;
+      });
+    }
+  }, [volume, micTrackRef?.publication?.track, isLocal]);
 
   return (
     <ParticipantContext.Provider value={p}>
@@ -130,9 +140,19 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
 
   // Kaydırıcı değiştiğinde diğer kullanıcının ekran paylaşımı ses düzeyini günceller
   React.useEffect(() => {
-    if (isLocal || !audioTrackRef?.publication?.track) return;
-    (audioTrackRef.publication.track as any).setVolume(volume);
-  }, [volume, audioTrackRef, isLocal]);
+    const track = audioTrackRef?.publication?.track as any;
+    if (isLocal || !track) return;
+    
+    if (typeof track.setVolume === 'function') {
+      track.setVolume(volume);
+    }
+    
+    if (track.attachedElements) {
+      track.attachedElements.forEach((el: HTMLMediaElement) => {
+        el.volume = volume;
+      });
+    }
+  }, [volume, audioTrackRef?.publication?.track, isLocal]);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
