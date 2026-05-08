@@ -16,6 +16,7 @@ interface ScreenPickerModalProps {
 export default function ScreenPickerModal({ onSelect, onClose }: ScreenPickerModalProps) {
   const [sources, setSources] = useState<DesktopSource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'screen' | 'window'>('all');
   const [shareAudio, setShareAudio] = useState(true);
 
   useEffect(() => {
