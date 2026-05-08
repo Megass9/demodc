@@ -128,6 +128,12 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   const audioTrackRef = audioTracks[0];
   const [volume, setVolume] = React.useState(1);
 
+  // Kaydırıcı değiştiğinde diğer kullanıcının ekran paylaşımı ses düzeyini günceller
+  React.useEffect(() => {
+    if (isLocal || !audioTrackRef?.publication?.track) return;
+    (audioTrackRef.publication.track as any).setVolume(volume);
+  }, [volume, audioTrackRef, isLocal]);
+
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen();
@@ -139,7 +145,6 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   return (
     <div ref={containerRef} className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 h-[300px] aspect-video flex items-center justify-center shadow-2xl group/screen glass shrink-0">
        <VideoTrack trackRef={trackRef} className="w-full h-full object-contain" />
-       {audioTrackRef && <AudioTrack trackRef={audioTrackRef} volume={volume} />}
        
        {/* Ses Kontrolü (Sadece diğer kullanıcıların yayınlarında ve seste yayın varsa görünür) */}
        {!isLocal && audioTrackRef && (
