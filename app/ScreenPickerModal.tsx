@@ -9,14 +9,14 @@ interface DesktopSource {
 }
 
 interface ScreenPickerModalProps {
-  onSelect: (sourceId: string) => void;
+  onSelect: (sourceId: string, shareAudio: boolean) => void;
   onClose: () => void;
 }
 
 export default function ScreenPickerModal({ onSelect, onClose }: ScreenPickerModalProps) {
   const [sources, setSources] = useState<DesktopSource[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'screen' | 'window'>('all');
+  const [shareAudio, setShareAudio] = useState(true);
 
   useEffect(() => {
     const fetchSources = async () => {
@@ -105,7 +105,7 @@ export default function ScreenPickerModal({ onSelect, onClose }: ScreenPickerMod
               {filteredSources.map((source) => (
                 <button
                   key={source.id}
-                  onClick={() => onSelect(source.id)}
+                  onClick={() => onSelect(source.id, shareAudio)}
                   className="group flex flex-col gap-4 p-5 rounded-[2.5rem] bg-white/5 hover:bg-white/[0.08] border border-white/5 hover:border-blue-500/40 transition-all text-left relative overflow-hidden"
                 >
                   <div className="aspect-video rounded-[1.8rem] overflow-hidden bg-black relative border border-white/10 shadow-2xl group-hover:scale-[1.03] transition-all duration-500">
@@ -131,7 +131,21 @@ export default function ScreenPickerModal({ onSelect, onClose }: ScreenPickerMod
         </div>
         
         <div className="p-8 border-t border-white/5 bg-white/3 flex justify-between items-center">
-           <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Toplam {filteredSources.length} Kaynak Bulundu</div>
+           <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-6">
+             <span>Toplam {filteredSources.length} Kaynak Bulundu</span>
+             
+             {/* Sesi Paylaş Toggle */}
+             <label className="flex items-center gap-3 cursor-pointer group">
+               <div className="relative">
+                 <input type="checkbox" className="sr-only" checked={shareAudio} onChange={(e) => setShareAudio(e.target.checked)} />
+                 <div className={`block w-12 h-7 rounded-full transition-colors ${shareAudio ? 'bg-blue-500' : 'bg-white/10'}`}></div>
+                 <div className={`dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform ${shareAudio ? 'transform translate-x-5' : ''}`}></div>
+               </div>
+               <span className={`text-xs tracking-widest font-black uppercase transition-colors ${shareAudio ? 'text-white' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                 Sistem Sesini Paylaş
+               </span>
+             </label>
+           </div>
            <button onClick={onClose} className="px-10 py-4 rounded-2.5xl text-xs font-black text-slate-400 hover:text-white transition-all tracking-widest bg-white/5 hover:bg-white/10">VAZGEÇ</button>
         </div>
       </div>

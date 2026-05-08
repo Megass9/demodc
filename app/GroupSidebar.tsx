@@ -152,22 +152,22 @@ function ScreenShareToggle() {
     }
   };
 
-  const handleSourceSelect = async (sourceId: string) => {
-    console.log('Source selected:', sourceId);
+  const handleSourceSelect = async (sourceId: string, shareAudio: boolean) => {
+    console.log('Source selected:', sourceId, 'shareAudio:', shareAudio);
     setShowPicker(false);
     if (!localParticipant) return;
 
     try {
       console.log('Setting source in Electron...');
-      await window.electron.setSource(sourceId);
+      await window.electron.setSource(sourceId, shareAudio);
       
       console.log('Enabling screen share in LiveKit...');
       await localParticipant.setScreenShareEnabled(true, { 
-        audio: {
+        audio: shareAudio ? {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
-        } 
+        } : false
       });
     } catch (err) {
       console.error('Ekran paylaşımı başlatılamadı:', err);
