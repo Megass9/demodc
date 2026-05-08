@@ -142,9 +142,9 @@ function ScreenShareToggle() {
       console.log('Toggling screen share...');
       await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { 
         audio: {
-          echoCancellation: false, // Yankı engelleyiciyi kapat
-          noiseSuppression: false, // Gürültü engelleyiciyi kapat
-          autoGainControl: false   // Otomatik ses seviyesi dengelemeyi kapat
+          echoCancellation: true, // Yankı engelleyiciyi aç
+          noiseSuppression: true, // Gürültü engelleyiciyi aç
+          autoGainControl: true   // Otomatik ses seviyesi dengelemeyi aç
         }
       });
     } catch (err) {
@@ -164,9 +164,9 @@ function ScreenShareToggle() {
       console.log('Enabling screen share in LiveKit...');
       await localParticipant.setScreenShareEnabled(true, { 
         audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
         } 
       });
     } catch (err) {
