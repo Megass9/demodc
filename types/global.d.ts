@@ -8,7 +8,7 @@ declare global {
         name: string;
         thumbnail: string;
       }>>;
-      setSource: (sourceId: string) => Promise<void>;
+      setSource: (sourceId: string, shareAudio: boolean) => Promise<void>;
       quitApp: () => void;
     };
   }

@@ -330,74 +330,81 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/5">
-              <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Cihaz Ayarları</h2>
-                <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Donanım ve ses yapılandırması</p>
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/5 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+              <div className="relative z-10">
+                <h2 className="text-3xl font-black text-white tracking-tighter flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-xl shadow-lg shadow-blue-600/30">⚙️</span>
+                  Cihaz Ayarları
+                </h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-70">Donanım ve ses yapılandırması</p>
               </div>
               <button 
                 onClick={() => setShowSettings(false)} 
-                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-400 transition-all rounded-xl"
+                className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-400 transition-all rounded-2xl group"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                <svg className="w-7 h-7 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 18L18 6M6 6l12 12"></path></svg>
               </button>
             </div>
             
-            <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div className="p-10 space-y-10 max-h-[65vh] overflow-y-auto custom-scrollbar bg-[#0f172a]/40">
               {isInVoice ? (
                 <>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                       <span className="text-blue-500">01</span> Mikrofon Girişi
+                  <div className="space-y-5 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-3">
+                       <span className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center text-[10px]">01</span> Mikrofon Girişi
                     </label>
-                    <div className="glass rounded-2xl p-4 border-white/5 hover:border-blue-500/30 transition-colors">
+                    <div className="glass rounded-[2rem] p-5 border-white/5 hover:border-blue-500/30 transition-all duration-300 shadow-xl hover:shadow-blue-500/5">
                       <MediaDeviceMenu kind="audioinput" />
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                       <span className="text-indigo-500">02</span> Hoparlör Çıkışı
+                  <div className="space-y-5 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-3">
+                       <span className="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-[10px]">02</span> Hoparlör Çıkışı
                     </label>
-                    <div className="glass rounded-2xl p-4 border-white/5 hover:border-indigo-500/30 transition-colors">
+                    <div className="glass rounded-[2rem] p-5 border-white/5 hover:border-indigo-500/30 transition-all duration-300 shadow-xl hover:shadow-indigo-500/5">
                       <MediaDeviceMenu kind="audiooutput" />
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                       <span className="text-violet-500">03</span> Video Kaynağı
+                  <div className="space-y-5 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-3">
+                       <span className="w-6 h-6 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center text-[10px]">03</span> Video Kaynağı
                     </label>
-                    <div className="glass rounded-2xl p-4 border-white/5 hover:border-violet-500/30 transition-colors">
+                    <div className="glass rounded-[2rem] p-5 border-white/5 hover:border-violet-500/30 transition-all duration-300 shadow-xl hover:shadow-violet-500/5">
                       <MediaDeviceMenu kind="videoinput" />
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="bg-orange-500/10 border border-orange-500/20 text-orange-400 p-6 rounded-3xl flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-2xl shrink-0">⚠️</div>
-                  <div>
-                    <h3 className="font-black text-orange-200 text-lg mb-1">Cihaz Erişimi Yok</h3>
-                    <p className="text-sm text-orange-400/80 leading-relaxed font-medium">Donanım cihazlarınızı yapılandırabilmek için öncelikle <b>Genel Ses</b> kanalına bir kez bağlanmanız gerekmektedir.</p>
+                <div className="bg-gradient-to-br from-orange-500/10 to-rose-500/5 border border-orange-500/20 text-orange-400 p-10 rounded-[3rem] flex flex-col items-center text-center gap-6 animate-pulse-subtle">
+                  <div className="w-24 h-24 rounded-[2rem] bg-orange-500/20 flex items-center justify-center text-5xl shadow-2xl shadow-orange-500/20">⚠️</div>
+                  <div className="space-y-3">
+                    <h3 className="font-black text-orange-200 text-2xl tracking-tight">Cihaz Erişimi Yok</h3>
+                    <p className="text-sm text-orange-400/70 leading-relaxed font-bold uppercase tracking-wider max-w-[280px]">Donanım cihazlarınızı yapılandırabilmek için önce bir kanala bağlanın</p>
                   </div>
                 </div>
               )}
             </div>
             
-            <div className="p-8 border-t border-white/5 bg-white/5 flex justify-between items-center">
-               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-white font-black">{username.charAt(0)}</div>
-                 <div className="font-bold text-white tracking-tight">{username}</div>
+            <div className="p-8 border-t border-white/5 bg-white/5 flex justify-between items-center backdrop-blur-xl relative">
+               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+               <div className="flex items-center gap-4 group cursor-pointer">
+                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-rose-600 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-110 transition-transform">{username.charAt(0)}</div>
+                 <div>
+                   <div className="font-black text-white tracking-tight text-lg group-hover:text-blue-400 transition-colors">{username}</div>
+                   <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Kullanıcı Hesabı</div>
+                 </div>
                </div>
                <button 
                  onClick={async () => { 
                    await supabase.auth.signOut(); 
                    setShowSettings(false); 
-                   // Safyayı tamamen sıfırlayıp giriş ekranına yönlendiriyoruz
                    window.location.href = '/'; 
                  }} 
-                 className="px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-black transition-all active:scale-95 shadow-lg shadow-rose-600/20 flex items-center gap-2"
+                 className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black transition-all active:scale-95 shadow-xl shadow-rose-600/20 flex items-center gap-3 group"
                >
-                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                 ÇIKIŞ
+                 <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                 ÇIKIŞ YAP
                </button>
             </div>
           </div>
