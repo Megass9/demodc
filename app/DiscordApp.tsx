@@ -55,9 +55,8 @@ export default function DiscordApp({ session }: DiscordAppProps) {
         }
       }}
     >
-      <div className="flex h-screen w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans relative">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+      {/* Ana Uygulama Çerçevesi - Clean Slate Konsepti */}
+      <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans relative">
 
         <div className="flex flex-row w-full h-full relative z-10">
           <GroupSidebar
@@ -68,12 +67,12 @@ export default function DiscordApp({ session }: DiscordAppProps) {
             onLeaveVoice={() => { setIsInVoice(false); setActiveChannel('chat'); }}
           />
 
-          <main className="flex-1 flex flex-col relative overflow-hidden">
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'chat' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
-              <ChatArea username={currentUsername} />
+          <main className="flex-1 flex flex-col relative overflow-hidden min-h-0">
+            <div className={`absolute inset-0 flex flex-col transition-all duration-300 ${activeChannel === 'chat' ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-95 pointer-events-none z-0'}`}>
+              <ChatArea username={currentUsername} channelName={activeChannel === 'chat' ? 'sohbet' : undefined} />
             </div>
 
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${activeChannel === 'voice' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'}`}>
+            <div className={`absolute inset-0 flex flex-col transition-all duration-300 ${activeChannel === 'voice' ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-95 pointer-events-none z-0'}`}>
               {isInVoice && <VoiceRoom room="Genel Ses" />}
             </div>
           </main>

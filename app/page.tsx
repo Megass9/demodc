@@ -47,23 +47,19 @@ export default function DiscordClone() {
   // KULLANICI GİRİŞ YAPMAMIŞSA LOGIN EKRANINI GÖSTER
   if (!session) {
     return (
-      <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-[#0f172a]">
-        {/* Animated Background Highlights */}
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
-
-        <div className="w-full max-w-[440px] z-10 animate-fade-in">
-          <div className="glass-card rounded-3xl p-8 md:p-10">
-            <div className="flex flex-col items-center mb-10">
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30 mb-6 rotate-3">
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-hidden bg-background">
+        <div className="w-full max-w-[400px] z-10 animate-fade-in animate-slide-up">
+          <div className="bg-background-secondary rounded-2xl p-8 border border-border-subtle shadow-xl">
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-14 h-14 bg-accent-primary rounded-[14px] flex items-center justify-center shadow-md mb-5">
                 <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="currentColor">
                   <path d="M19.27 4.51a1.1 1.1 0 0 0-1-.18l-1.42.36c-1.35.33-2.73.5-4.13.5s-2.78-.17-4.13-.5l-1.42-.36a1.1 1.1 0 0 0-1 .18 1.1 1.1 0 0 0-.44.89v10.5a1.1 1.1 0 0 0 .76 1l13.62 4.4a1.1 1.1 0 0 0 1.42-1V5.4a1.1 1.1 0 0 0-.44-.89zM15 12a1 1 0 1 1 1-1 1 1 0 0 1-1 1zM9 12a1 1 0 1 1 1-1 1 1 0 0 1-1 1z" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">
+              <h2 className="text-2xl font-bold text-foreground tracking-tight text-center">
                 {isLogin ? 'Tekrar Hoş Geldin!' : 'Aramıza Katıl'}
               </h2>
-              <p className="text-gray-400 mt-2 text-center text-sm">
+              <p className="text-foreground-muted mt-2 text-center text-sm font-medium">
                 {isLogin ? 'Seni tekrar görmek harika. Hemen giriş yap.' : 'Yeni bir deneyime hazır mısın? Kayıt ol ve başla.'}
               </p>
             </div>
@@ -85,7 +81,7 @@ export default function DiscordClone() {
                     onChange={e => setEmail(e.target.value)}
                     required
                     placeholder="ornek@mail.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                    className="w-full bg-background border border-border-subtle rounded-lg px-4 py-2.5 text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent-primary transition-colors text-sm"
                   />
                 </div>
               </div>
@@ -98,18 +94,18 @@ export default function DiscordClone() {
                   onChange={e => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                  className="w-full bg-background border border-border-subtle rounded-lg px-4 py-2.5 text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent-primary transition-colors text-sm"
                 />
                 {isLogin && (
-                  <div className="flex justify-end mt-1">
-                    <button type="button" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">Şifremi Unuttum</button>
+                  <div className="flex justify-end mt-1.5">
+                    <button type="button" className="text-xs text-foreground-muted hover:text-accent-primary transition-colors font-medium">Şifremi Unuttum</button>
                   </div>
                 )}
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-xl transition-all font-semibold shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 active:scale-[0.98] mt-4"
+                className="w-full bg-accent-primary hover:bg-accent-hover text-white py-2.5 rounded-lg transition-colors font-semibold mt-2 text-sm"
               >
                 {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
               </button>
@@ -119,7 +115,7 @@ export default function DiscordClone() {
               <span className="text-gray-500">{isLogin ? 'Hesabın yok mu? ' : 'Zaten hesabın var mı? '}</span>
               <button
                 onClick={() => { setIsLogin(!isLogin); setAuthError(''); }}
-                className="text-blue-400 hover:text-blue-300 transition-colors font-bold underline-offset-4 hover:underline"
+                className="text-accent-primary hover:text-accent-hover transition-colors font-semibold hover:underline"
               >
                 {isLogin ? 'Kayıt Ol' : 'Giriş Yap'}
               </button>
