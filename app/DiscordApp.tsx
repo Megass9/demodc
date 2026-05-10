@@ -18,6 +18,28 @@ export default function DiscordApp({ session }: DiscordAppProps) {
   const [voiceToken, setVoiceToken] = useState("");
   const liveKitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
 
+  const [qualityPreset, setQualityPreset] = useState(ScreenSharePresets.h1080fps30.encoding);
+
+  useEffect(() => {
+    const loadQuality = () => {
+      const saved = localStorage.getItem('screenShareQuality');
+      if (saved) {
+        switch(saved) {
+          case '1080p60': setQualityPreset(ScreenSharePresets.h1080fps60.encoding); break;
+          case '1080p30': setQualityPreset(ScreenSharePresets.h1080fps30.encoding); break;
+          case '720p30': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
+          case '480p30': setQualityPreset({ maxBitrate: 500_000, maxFramerate: 30 }); break;
+        }
+      }
+    };
+    
+    if (typeof window !== 'undefined') {
+      loadQuality();
+      window.addEventListener('screenShareQualityChanged', loadQuality);
+      return () => window.removeEventListener('screenShareQualityChanged', loadQuality);
+    }
+  }, []);
+
   useEffect(() => {
     if (session) {
       const currentUsername = session.user.email.split('@')[0];
@@ -46,7 +68,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
         adaptiveStream: true, // Bant genişliğine göre kaliteyi otomatik ayarlar (donmaları önler)
         dynacast: true,       // İzlenmeyen yayınları duraklatarak tasarruf sağlar
         publishDefaults: {
-          screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
+          screenShareEncoding: qualityPreset,
           screenShareSimulcast: true, // Farklı bağlantı hızları için farklı kalitelerde yayın gönderir
           dtx: true,
         },

@@ -204,6 +204,23 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
   const participants = useParticipants();
   const krisp = useKrispNoiseFilter();
   const [krispRestoredForSession, setKrispRestoredForSession] = useState(false);
+  const [screenQuality, setScreenQuality] = useState('1080p30');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('screenShareQuality');
+      if (saved) setScreenQuality(saved);
+    }
+  }, []);
+
+  const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setScreenQuality(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('screenShareQuality', val);
+      window.dispatchEvent(new Event('screenShareQualityChanged'));
+    }
+  };
 
   useEffect(() => {
     if (!isInVoice) {
@@ -371,6 +388,20 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
                     </label>
                     <div className="panel rounded-xl p-4 transition-colors hover:border-accent-primary/50">
                       <MediaDeviceMenu kind="videoinput" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
+                       <span className="w-5 h-5 rounded bg-background-tertiary flex items-center justify-center text-[10px]">4</span> Ekran Paylaşım Kalitesi
+                    </label>
+                    <div className="panel rounded-xl p-4 transition-colors hover:border-accent-primary/50 lk-device-menu">
+                      <select value={screenQuality} onChange={handleQualityChange}>
+                        <option value="1080p60">1080p 60FPS (Maksimum Akıcılık)</option>
+                        <option value="1080p30">1080p 30FPS (Yüksek Kalite - Önerilen)</option>
+                        <option value="720p30">720p 30FPS (Standart)</option>
+                        <option value="480p30">480p 30FPS (Düşük İnternet / Tasarruf)</option>
+                      </select>
                     </div>
                   </div>
 
