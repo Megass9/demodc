@@ -203,7 +203,6 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
   const [showSettings, setShowSettings] = useState(false);
   const participants = useParticipants();
   const krisp = useKrispNoiseFilter();
-  const [krispRestoredForSession, setKrispRestoredForSession] = useState(false);
   const [screenQuality, setScreenQuality] = useState('1080p30');
 
   useEffect(() => {
@@ -223,20 +222,17 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
   };
 
   useEffect(() => {
-    if (!isInVoice) {
-      setKrispRestoredForSession(false);
-    }
-  }, [isInVoice]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && isInVoice && !krisp.isNoiseFilterPending && !krispRestoredForSession) {
+    if (typeof window !== 'undefined' && isInVoice && !krisp.isNoiseFilterPending) {
       const savedState = localStorage.getItem('krispEnabled') === 'true';
-      if (savedState !== krisp.isNoiseFilterEnabled) {
-        krisp.setNoiseFilterEnabled(savedState).catch(console.error);
+      // Eğer kullanıcı daha önce açtıysa ve şu an kapalıysa otomatik aç
+      if (savedState && !krisp.isNoiseFilterEnabled) {
+        krisp.setNoiseFilterEnabled(true).catch(() => {
+          // Bazı durumlarda mikrofon henüz hazır olmadığı için hata verebilir, 
+          // useEffect tekrar tetiklendiğinde zaten tekrar deneyecektir.
+        });
       }
-      setKrispRestoredForSession(true);
     }
-  }, [isInVoice, krisp.isNoiseFilterPending, krisp.isNoiseFilterEnabled, krispRestoredForSession, krisp]);
+  }, [isInVoice, krisp.isNoiseFilterPending, krisp.isNoiseFilterEnabled, krisp]);
 
   return (
     <div className="w-[300px] panel border-r border-border-subtle flex flex-col shrink-0 overflow-hidden z-20 transition-all duration-300">
@@ -364,6 +360,25 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
             </div>
             
             <div className="p-8 space-y-8 max-h-[65vh] overflow-y-auto custom-scrollbar bg-background">
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
+                   <span className="w-5 h-5 rounded bg-accent-primary/10 text-accent-primary flex items-center justify-center text-[10px]">⚙️</span> Ekran Paylaşım Kalitesi
+                </label>
+                <div className="panel rounded-xl p-4 transition-colors hover:border-accent-primary/50 flex flex-col">
+                  <select 
+                    value={screenQuality} 
+                    onChange={handleQualityChange}
+                    className="w-full bg-background-secondary border border-border-subtle text-foreground p-2.5 rounded-lg text-sm font-medium focus:ring-2 focus:ring-accent-primary focus:border-accent-primary outline-none cursor-pointer"
+                  >
+                    <option value="auto">Otomatik (İnternet Hızına Göre)</option>
+                    <option value="1080p60">1080p 60FPS (Maksimum Akıcılık)</option>
+                    <option value="1080p30">1080p 30FPS (Yüksek Kalite - Önerilen)</option>
+                    <option value="720p30">720p 30FPS (Standart)</option>
+                    <option value="480p30">480p 30FPS (Düşük İnternet / Tasarruf)</option>
+                  </select>
+                </div>
+              </div>
+
               {isInVoice ? (
                 <>
                   <div className="space-y-3">
@@ -391,19 +406,7 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
-                       <span className="w-5 h-5 rounded bg-background-tertiary flex items-center justify-center text-[10px]">4</span> Ekran Paylaşım Kalitesi
-                    </label>
-                    <div className="panel rounded-xl p-4 transition-colors hover:border-accent-primary/50 lk-device-menu">
-                      <select value={screenQuality} onChange={handleQualityChange}>
-                        <option value="1080p60">1080p 60FPS (Maksimum Akıcılık)</option>
-                        <option value="1080p30">1080p 30FPS (Yüksek Kalite - Önerilen)</option>
-                        <option value="720p30">720p 30FPS (Standart)</option>
-                        <option value="480p30">480p 30FPS (Düşük İnternet / Tasarruf)</option>
-                      </select>
-                    </div>
-                  </div>
+
 
                   <div className="space-y-3 pt-4 border-t border-border-subtle">
                     <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
