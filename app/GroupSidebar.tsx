@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useLocalParticipant, MediaDeviceMenu, useParticipants, useIsSpeaking, useTrackVolume, useParticipantTracks, isTrackReference } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
@@ -203,6 +203,23 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
   const [showSettings, setShowSettings] = useState(false);
   const participants = useParticipants();
   const krisp = useKrispNoiseFilter();
+  const [krispRestoredForSession, setKrispRestoredForSession] = useState(false);
+
+  useEffect(() => {
+    if (!isInVoice) {
+      setKrispRestoredForSession(false);
+    }
+  }, [isInVoice]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isInVoice && !krisp.isNoiseFilterPending && !krispRestoredForSession) {
+      const savedState = localStorage.getItem('krispEnabled') === 'true';
+      if (savedState !== krisp.isNoiseFilterEnabled) {
+        krisp.setNoiseFilterEnabled(savedState).catch(console.error);
+      }
+      setKrispRestoredForSession(true);
+    }
+  }, [isInVoice, krisp.isNoiseFilterPending, krisp.isNoiseFilterEnabled, krispRestoredForSession, krisp]);
 
   return (
     <div className="w-[300px] panel border-r border-border-subtle flex flex-col shrink-0 overflow-hidden z-20 transition-all duration-300">
@@ -372,7 +389,13 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
                         </div>
                       </div>
                       <button
-                        onClick={() => krisp.setNoiseFilterEnabled(!krisp.isNoiseFilterEnabled)}
+                        onClick={() => {
+                          const newState = !krisp.isNoiseFilterEnabled;
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('krispEnabled', String(newState));
+                          }
+                          krisp.setNoiseFilterEnabled(newState);
+                        }}
                         disabled={krisp.isNoiseFilterPending}
                         className={`relative w-14 h-8 rounded-full transition-colors duration-300 focus:outline-none ${krisp.isNoiseFilterEnabled ? 'bg-emerald-500' : 'bg-background-tertiary'} ${krisp.isNoiseFilterPending ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
                       >
