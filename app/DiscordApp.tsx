@@ -69,7 +69,6 @@ export default function DiscordApp({ session }: DiscordAppProps) {
         dynacast: true,       // İzlenmeyen yayınları duraklatarak tasarruf sağlar
         publishDefaults: {
           screenShareEncoding: qualityPreset,
-          screenShareSimulcast: true, // Farklı bağlantı hızları için farklı kalitelerde yayın gönderir
           dtx: true,
         },
         audioCaptureDefaults: {
