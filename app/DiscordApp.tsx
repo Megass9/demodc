@@ -43,15 +43,17 @@ export default function DiscordApp({ session }: DiscordAppProps) {
       serverUrl={liveKitUrl}
       connect={isInVoice && !!voiceToken} // Sadece butona tıklandığında ve token varsa bağlanır
       options={{
+        adaptiveStream: true, // Bant genişliğine göre kaliteyi otomatik ayarlar (donmaları önler)
+        dynacast: true,       // İzlenmeyen yayınları duraklatarak tasarruf sağlar
         publishDefaults: {
-          // Yayının kodlama ve veri hızını 1080p 30FPS profiline zorluyoruz
           screenShareEncoding: ScreenSharePresets.h1080fps30.encoding,
-          dtx: true, // Sadece konuşulduğunda sesi iletir (Klavye, fan ve boşluk seslerini keser)
+          screenShareSimulcast: true, // Farklı bağlantı hızları için farklı kalitelerde yayın gönderir
+          dtx: true,
         },
         audioCaptureDefaults: {
-          echoCancellation: true, // Yankı yapmasını / sesin sekmesini önler
-          noiseSuppression: true, // Tarayıcının standart arka plan gürültü engelleyicisi
-          autoGainControl: true,  // Mikrofon ses seviyesini otomatik dengeler
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
         }
       }}
     >
