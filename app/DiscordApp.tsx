@@ -12,6 +12,28 @@ interface DiscordAppProps {
   session: any;
 }
 
+const FloatingHearts = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      {[...Array(15)].map((_, i) => (
+        <div 
+          key={i}
+          className="heart-particle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 20}s`,
+            animationDuration: `${15 + Math.random() * 10}s`,
+            fontSize: `${14 + Math.random() * 20}px`,
+            color: i % 2 === 0 ? 'rgba(244, 63, 94, 0.15)' : 'rgba(236, 72, 153, 0.15)'
+          }}
+        >
+          ❤️
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function DiscordApp({ session }: DiscordAppProps) {
   const [activeChannel, setActiveChannel] = useState<'chat' | 'voice'>('chat');
   const [isInVoice, setIsInVoice] = useState(false);
@@ -81,8 +103,8 @@ export default function DiscordApp({ session }: DiscordAppProps) {
     >
       {/* Ana Uygulama Çerçevesi - Clean Slate Konsepti */}
       <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans relative">
-
-        <div className="flex flex-row w-full h-full relative z-10">
+        <FloatingHearts />
+        <div className="flex flex-row w-full h-full relative z-10 glass-panel border-none rounded-none">
           <GroupSidebar
             username={currentUsername}
             activeChannel={activeChannel}

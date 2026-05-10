@@ -236,7 +236,7 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
 
   return (
     <div className="w-[300px] panel border-r border-border-subtle flex flex-col shrink-0 overflow-hidden z-20 transition-all duration-300">
-      <div className="h-16 flex items-center px-4 font-bold tracking-tight text-[15px] text-foreground border-b border-border-subtle shadow-sm bg-background-secondary/50">
+      <div className="h-16 flex items-center px-4 font-bold tracking-tight text-[15px] text-foreground border-b border-border-subtle shadow-sm bg-background-secondary/50 shimmer-container">
         Seni <span className="text-accent-primary mx-1">Çok Seviyorum</span> Aslı
       </div>
       
@@ -249,11 +249,12 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
           </div>
           <div 
             onClick={() => onChannelSelect('chat')}
-            className={`group px-3 py-2 rounded-md cursor-pointer flex items-center font-medium transition-all duration-150 mb-1 ${
+            className={`stagger-item group px-3 py-2 rounded-md cursor-pointer flex items-center font-medium transition-all duration-300 mb-1 ${
               activeChannel === 'chat' 
-                ? 'bg-background-tertiary text-foreground' 
+                ? 'bg-background-tertiary text-foreground active-glow' 
                 : 'text-foreground-muted hover:bg-background-tertiary/50 hover:text-foreground'
             }`}
+            style={{ animationDelay: '0.1s' }}
           >
             <span className="text-[18px] mr-2 text-foreground-muted opacity-70">#</span> 
             sohbet
@@ -268,11 +269,12 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
           </div>
           <div 
             onClick={() => onChannelSelect('voice')}
-            className={`group px-3 py-2 rounded-md cursor-pointer flex items-center font-medium transition-all duration-150 mb-1 ${
+            className={`stagger-item group px-3 py-2 rounded-md cursor-pointer flex items-center font-medium transition-all duration-300 mb-1 ${
               activeChannel === 'voice' 
-                ? 'bg-background-tertiary text-foreground' 
+                ? 'bg-background-tertiary text-foreground active-glow' 
                 : 'text-foreground-muted hover:bg-background-tertiary/50 hover:text-foreground'
             }`}
+            style={{ animationDelay: '0.2s' }}
           >
             <span className="mr-2 text-[16px] text-foreground-muted opacity-70">🔊</span> 
             Genel Ses
@@ -281,8 +283,10 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
           {/* Ses Kanalına Bağlı Dinamik Kullanıcı Listesi */}
           {participants.length > 0 && (
             <div className="pl-6 pr-2 mt-4 space-y-2">
-              {participants.map((p) => (
-                <ParticipantItem key={p.sid} participant={p} />
+              {participants.map((p, index) => (
+                <div key={p.sid} className="stagger-item" style={{ animationDelay: `${0.3 + index * 0.1}s` }}>
+                  <ParticipantItem participant={p} />
+                </div>
               ))}
             </div>
           )}

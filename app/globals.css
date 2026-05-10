@@ -142,3 +142,88 @@ body {
   color: var(--foreground);
   padding: 10px;
 }
+
+/* --- Ultra Modern Animations --- */
+
+/* Shimmer (Parıltı) Efekti */
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  50%, 100% { transform: translateX(250%) skewX(-15deg); }
+}
+
+.shimmer-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: shimmer 4s infinite ease-in-out;
+}
+
+/* Staggered (Kademeli) Giriş Animasyonu */
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stagger-item {
+  opacity: 0;
+  animation: staggerIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Floating Heart (Yüzen Kalp) Animasyonu */
+@keyframes floatHeart {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.4; }
+  90% { opacity: 0.2; }
+  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
+
+.heart-particle {
+  position: fixed;
+  bottom: -50px;
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(1px);
+  animation: floatHeart 15s linear infinite;
+}
+
+/* Glowing Border for Active Items - Refined & Professional */
+.active-glow {
+  position: relative;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.active-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, var(--accent-primary), rgba(255, 255, 255, 0.1), var(--accent-primary));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.4;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.2; filter: blur(1px); }
+  50% { opacity: 0.5; filter: blur(2px); }
+}
