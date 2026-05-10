@@ -25,7 +25,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
       const saved = localStorage.getItem('screenShareQuality');
       if (saved) {
         switch(saved) {
-          case '1080p60': setQualityPreset(ScreenSharePresets.h1080fps60.encoding); break;
+          case '1080p60': setQualityPreset({ maxBitrate: 4_500_000, maxFramerate: 60 }); break;
           case '1080p30': setQualityPreset(ScreenSharePresets.h1080fps30.encoding); break;
           case '720p30': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
           case '480p30': setQualityPreset({ maxBitrate: 500_000, maxFramerate: 30 }); break;
