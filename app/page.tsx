@@ -123,7 +123,7 @@ export default function DiscordClone() {
           </div>
 
           <p className="mt-10 text-center text-gray-500 text-xs tracking-wider uppercase">
-            &copy; 2026 Demodc App • Tasarım: Emre dargaç
+            &copy; 2026 Aslının Uygulaması • Tasarım: Emre dargaç
           </p>
         </div>
       </div>

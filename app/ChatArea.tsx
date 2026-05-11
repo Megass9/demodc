@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import LinkifiedText from './LinkifiedText';
 
 interface ChatAreaProps {
   username: string;
@@ -116,7 +117,7 @@ export default function ChatArea({ username, channelName = 'sohbet' }: ChatAreaP
                   ${isMe 
                     ? 'bg-accent-primary text-white' 
                     : 'bg-background-secondary text-foreground border border-border-subtle'}`}>
-                  {msg.content}
+                  <LinkifiedText text={msg.content} />
                 </div>
               </div>
             </div>
