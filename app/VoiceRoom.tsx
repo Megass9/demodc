@@ -130,7 +130,7 @@ function VoiceUsers() {
   );
 }
 
-function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolean }) {
+function ScreenShareItem({ trackRef, isLocal, roomName }: { trackRef: any, isLocal: boolean, roomName: string }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const audioTracks = useParticipantTracks([Track.Source.ScreenShareAudio], trackRef.participant.identity);
   const audioTrackRef = audioTracks[0];
@@ -178,15 +178,30 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
 
   const handlePopOut = async () => {
     setContextMenu(null);
-    const video = containerRef.current?.querySelector('video');
-    if (video && (video as any).requestPictureInPicture) {
-      try {
-        await (video as any).requestPictureInPicture();
-      } catch (err) {
-        console.error('Pop-out hatası:', err);
+    
+    // Pop-out için yeni bir token al (farklı bir kimlik ile bağlanmalı ki ana pencereden atılmasın)
+    const popoutUsername = `izleyici-${Math.floor(Math.random() * 10000)}`;
+    
+    try {
+      const res = await fetch(`/livekit?room=${encodeURIComponent(roomName)}&username=${encodeURIComponent(popoutUsername)}`);
+      const data = await res.json();
+      
+      if (data.token) {
+        const url = `/popout?room=${encodeURIComponent(roomName)}&token=${data.token}&identity=${encodeURIComponent(trackRef.participant.identity)}`;
+        
+        const width = 1280;
+        const height = 720;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+        
+        window.open(
+          url, 
+          `popout-${trackRef.participant.identity}`, 
+          `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no`
+        );
       }
-    } else {
-      alert('Tarayıcınız Picture-in-Picture özelliğini desteklemiyor.');
+    } catch (err) {
+      console.error('Pop-out başlatılamadı:', err);
     }
   };
 
@@ -304,7 +319,7 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   );
 }
 
-function ScreenShares() {
+function ScreenShares({ roomName }: { roomName: string }) {
   const tracks = useTracks([{ source: Track.Source.ScreenShare, withPlaceholder: false }]);
   const { localParticipant } = useLocalParticipant();
   
@@ -318,7 +333,7 @@ function ScreenShares() {
       {tracks.map((trackRef) => {
         const isLocalUser = trackRef.participant.sid === localParticipant?.sid;
         console.log('Rendering Track for:', trackRef.participant.identity, 'isLocalUser:', isLocalUser, 'SID:', trackRef.participant.sid);
-        return <ScreenShareItem key={`${trackRef.participant.sid}-${trackRef.source}`} trackRef={trackRef} isLocal={isLocalUser} />;
+        return <ScreenShareItem key={`${trackRef.participant.sid}-${trackRef.source}`} trackRef={trackRef} isLocal={isLocalUser} roomName={roomName} />;
       })}
     </div>
   );
@@ -371,7 +386,7 @@ export default function VoiceRoom({ room }: VoiceRoomProps) {
 
       <div className="flex-1 flex flex-col relative overflow-hidden">
         <RoomAudioTracker />
-        <ScreenShares />
+        <ScreenShares roomName={room} />
         <VoiceUsers />
       </div>
     </div>
