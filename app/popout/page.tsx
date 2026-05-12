@@ -26,7 +26,7 @@ function PopoutContent() {
       token={token}
       serverUrl={serverUrl}
       connect={true}
-      audio={true}
+      audio={false}
       video={false}
       options={{ adaptiveStream: true, dynacast: true }}
     >
