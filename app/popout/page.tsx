@@ -32,7 +32,6 @@ function PopoutContent() {
     >
       <div className="h-screen w-full bg-black flex items-center justify-center overflow-hidden relative">
         <StreamRenderer targetIdentity={targetIdentity} />
-        <RoomAudioRenderer />
         
         {/* Overlay Info */}
         <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 z-20">

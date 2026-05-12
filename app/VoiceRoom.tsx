@@ -117,7 +117,7 @@ function ParticipantCard({ p }: { p: Participant }) {
 }
 
 function VoiceUsers() {
-  const participants = useParticipants();
+  const participants = useParticipants().filter(p => !p.identity.startsWith('izleyici-'));
   
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
