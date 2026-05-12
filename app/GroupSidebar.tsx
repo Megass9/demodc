@@ -217,7 +217,7 @@ function ScreenShareToggle() {
 
 export default function GroupSidebar({ username, activeChannel, onChannelSelect, isInVoice, onLeaveVoice }: GroupSidebarProps) {
   const [showSettings, setShowSettings] = useState(false);
-  const participants = useParticipants();
+  const participants = useParticipants().filter(p => !p.identity.startsWith('izleyici-'));
   const krisp = useKrispNoiseFilter();
   const [screenQuality, setScreenQuality] = useState('1080p30');
 
