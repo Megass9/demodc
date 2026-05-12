@@ -135,6 +135,7 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
   const audioTracks = useParticipantTracks([Track.Source.ScreenShareAudio], trackRef.participant.identity);
   const audioTrackRef = audioTracks[0];
   const [volume, setVolume] = React.useState(1);
+  const [contextMenu, setContextMenu] = React.useState<{ x: number, y: number } | null>(null);
 
   // Kaydırıcı değiştiğinde diğer kullanıcının ekran paylaşımı ses düzeyini günceller
   React.useEffect(() => {
@@ -152,7 +153,22 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
     }
   }, [volume, audioTrackRef?.publication?.track, isLocal]);
 
+  // Menüyü kapatmak için global listener
+  React.useEffect(() => {
+    const handleClose = () => setContextMenu(null);
+    if (contextMenu) {
+      window.addEventListener('click', handleClose);
+      return () => window.removeEventListener('click', handleClose);
+    }
+  }, [contextMenu]);
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
   const toggleFullScreen = () => {
+    setContextMenu(null);
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen();
     } else {
@@ -160,8 +176,26 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
     }
   };
 
+  const handlePopOut = async () => {
+    setContextMenu(null);
+    const video = containerRef.current?.querySelector('video');
+    if (video && (video as any).requestPictureInPicture) {
+      try {
+        await (video as any).requestPictureInPicture();
+      } catch (err) {
+        console.error('Pop-out hatası:', err);
+      }
+    } else {
+      alert('Tarayıcınız Picture-in-Picture özelliğini desteklemiyor.');
+    }
+  };
+
   return (
-    <div ref={containerRef} className="relative rounded-2xl overflow-hidden panel bg-black/40 h-[300px] aspect-video flex items-center justify-center shadow-lg group/screen shrink-0">
+    <div 
+      ref={containerRef} 
+      onContextMenu={handleContextMenu}
+      className="relative rounded-3xl overflow-hidden panel bg-black/40 h-[320px] aspect-video flex items-center justify-center shadow-2xl group/screen shrink-0 border border-white/5"
+    >
        <VideoTrack trackRef={trackRef} className="w-full h-full object-contain" />
        
        {/* Ses Kontrolü (Sadece diğer kullanıcıların yayınlarında ve seste yayın varsa görünür) */}
@@ -183,7 +217,7 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
        {isLocal && (
          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover/screen:opacity-100 transition-opacity">
            <div className="glass px-4 py-2 rounded-xl border-white/10">
-             <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">Sonsuz döngüyü önlemek için pencereyi küçültebilir veya başka ekran seçebilirsiniz</p>
+             <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest text-center max-w-[200px]">Sonsuz döngüyü önlemek için pencereyi küçültebilirsiniz</p>
            </div>
          </div>
        )}
@@ -196,12 +230,76 @@ function ScreenShareItem({ trackRef, isLocal }: { trackRef: any, isLocal: boolea
            </span>
          </div>
        </div>
+
        <button 
          onClick={toggleFullScreen}
          className="absolute top-4 right-4 panel p-2.5 rounded-xl opacity-0 group-hover/screen:opacity-100 transition-opacity hover:bg-background-tertiary text-foreground z-20"
        >
          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
        </button>
+
+       {/* Sağ Tık Menüsü (Context Menu) */}
+       {contextMenu && (
+         <div 
+           className="fixed z-[1000] bg-[#1a1c23]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[200px] animate-in fade-in zoom-in duration-200"
+           style={{ left: contextMenu.x, top: contextMenu.y }}
+           onClick={e => e.stopPropagation()}
+         >
+           <button 
+             onClick={handlePopOut}
+             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-blue-500 text-white transition-colors group/item"
+           >
+             <div className="w-8 h-8 rounded-lg bg-white/5 group-hover/item:bg-white/20 flex items-center justify-center">
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+             </div>
+             <span className="text-[13px] font-bold tracking-tight">Pencere Olarak Ayır</span>
+           </button>
+           
+           <button 
+             onClick={toggleFullScreen}
+             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-500 text-white transition-colors group/item"
+           >
+             <div className="w-8 h-8 rounded-lg bg-white/5 group-hover/item:bg-white/20 flex items-center justify-center">
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+             </div>
+             <span className="text-[13px] font-bold tracking-tight">Tam Ekran Yap</span>
+           </button>
+
+           <div className="h-px bg-white/5 my-1.5 mx-2" />
+
+           {!isLocal && (
+             <button 
+               onClick={() => setVolume(volume === 0 ? 1 : 0)}
+               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500 text-white transition-colors group/item"
+             >
+               <div className="w-8 h-8 rounded-lg bg-white/5 group-hover/item:bg-white/20 flex items-center justify-center">
+                 {volume === 0 ? (
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg>
+                 ) : (
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                 )}
+               </div>
+               <span className="text-[13px] font-bold tracking-tight">{volume === 0 ? 'Sesi Aç' : 'Sesi Kapat'}</span>
+             </button>
+           )}
+
+           <div className="px-3 py-1.5">
+             <div className="flex items-center justify-between mb-1.5">
+               <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Yayın Sesi</span>
+               <span className="text-[10px] text-white/60 font-bold">{Math.round(volume * 100)}%</span>
+             </div>
+             <input
+               type="range"
+               min="0"
+               max="1"
+               step="0.01"
+               value={volume}
+               onChange={(e) => setVolume(parseFloat(e.target.value))}
+               className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+             />
+           </div>
+         </div>
+       )}
     </div>
   );
 }
