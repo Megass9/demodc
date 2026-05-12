@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { LiveKitRoom, VideoTrack, RoomAudioRenderer, useTracks } from '@livekit/components-react';
+import { LiveKitRoom, VideoTrack, RoomAudioRenderer, useTracks, isTrackReference } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import '@livekit/components-styles';
 
@@ -54,7 +54,7 @@ function StreamRenderer({ targetIdentity }: { targetIdentity: string | null }) {
   // Hedef kişinin ekran paylaşımını bul, bulamazsa ilk bulduğunu göster
   const trackRef = tracks.find(t => t.participant.identity === targetIdentity) || tracks[0];
 
-  if (!trackRef) {
+  if (!trackRef || !isTrackReference(trackRef)) {
     return (
       <div className="flex flex-col items-center gap-4 text-slate-400">
         <div className="w-12 h-12 border-4 border-white/10 border-t-blue-500 rounded-full animate-spin"></div>
