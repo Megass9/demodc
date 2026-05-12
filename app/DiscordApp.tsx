@@ -51,10 +51,10 @@ export default function DiscordApp({ session }: DiscordAppProps) {
       if (saved) {
         switch(saved) {
           case 'auto': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
-          case '1080p60': setQualityPreset({ maxBitrate: 3_500_000, maxFramerate: 60 }); break;
-          case '1080p30': setQualityPreset({ maxBitrate: 2_500_000, maxFramerate: 30 }); break;
-          case '720p30': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
-          case '480p30': setQualityPreset({ maxBitrate: 750_000, maxFramerate: 30 }); break;
+          case '1080p60': setQualityPreset({ maxBitrate: 6_000_000, maxFramerate: 60 }); break;
+          case '1080p30': setQualityPreset({ maxBitrate: 4_000_000, maxFramerate: 30 }); break;
+          case '720p30': setQualityPreset({ maxBitrate: 2_500_000, maxFramerate: 30 }); break;
+          case '480p30': setQualityPreset({ maxBitrate: 1_000_000, maxFramerate: 30 }); break;
         }
       }
     };

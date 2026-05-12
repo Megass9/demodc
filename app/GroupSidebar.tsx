@@ -134,12 +134,20 @@ function ScreenShareToggle() {
 
     try {
       console.log('Toggling screen share...');
+      const savedQuality = localStorage.getItem('screenShareQuality') || '1080p30';
+      const resolution = savedQuality === '1080p60' ? { width: 1920, height: 1080, frameRate: 60 } :
+                         savedQuality === '1080p30' ? { width: 1920, height: 1080, frameRate: 30 } :
+                         savedQuality === '720p30'  ? { width: 1280, height: 720, frameRate: 30 } :
+                         savedQuality === '480p30'  ? { width: 854, height: 480, frameRate: 30 } :
+                         undefined;
+
       await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { 
         audio: {
-          echoCancellation: true, // Yankı engelleyiciyi aç
-          noiseSuppression: true, // Gürültü engelleyiciyi aç
-          autoGainControl: true   // Otomatik ses seviyesi dengelemeyi aç
-        }
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        },
+        ...(resolution ? { resolution } : {})
       });
     } catch (err) {
       console.error('Ekran paylaşımı hatası:', err);
@@ -155,13 +163,21 @@ function ScreenShareToggle() {
       console.log('Setting source in Electron...');
       await window.electron.setSource(sourceId, shareAudio);
       
-      console.log('Enabling screen share in LiveKit...');
+      const savedQuality = localStorage.getItem('screenShareQuality') || '1080p30';
+      const resolution = savedQuality === '1080p60' ? { width: 1920, height: 1080, frameRate: 60 } :
+                         savedQuality === '1080p30' ? { width: 1920, height: 1080, frameRate: 30 } :
+                         savedQuality === '720p30'  ? { width: 1280, height: 720, frameRate: 30 } :
+                         savedQuality === '480p30'  ? { width: 854, height: 480, frameRate: 30 } :
+                         undefined;
+
+      console.log('Enabling screen share in LiveKit with resolution:', resolution);
       await localParticipant.setScreenShareEnabled(true, { 
         audio: shareAudio ? {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
-        } : false
+        } : false,
+        ...(resolution ? { resolution } : {})
       });
     } catch (err) {
       console.error('Ekran paylaşımı başlatılamadı:', err);
