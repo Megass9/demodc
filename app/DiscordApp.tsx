@@ -34,8 +34,8 @@ const FloatingHearts = () => {
   );
 };
 
-// Ekran paylaşımı için daha dengeli bir varsayılan (720p 30fps)
-const DEFAULT_SCREEN_SHARE_CONFIG = ScreenSharePresets.h720fps30.encoding;
+// Ekran paylaşımı için daha dengeli bir varsayılan (720p 15fps)
+const DEFAULT_SCREEN_SHARE_CONFIG = ScreenSharePresets.h720fps15.encoding;
 
 export default function DiscordApp({ session }: DiscordAppProps) {
   const [activeChannel, setActiveChannel] = useState<'chat' | 'voice'>('chat');
@@ -50,11 +50,11 @@ export default function DiscordApp({ session }: DiscordAppProps) {
       const saved = localStorage.getItem('screenShareQuality');
       if (saved) {
         switch(saved) {
-          case 'auto': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
+          case 'auto': setQualityPreset(ScreenSharePresets.h720fps15.encoding); break;
           case '1080p60': setQualityPreset({ maxBitrate: 6_000_000, maxFramerate: 60 }); break;
-          case '1080p30': setQualityPreset({ maxBitrate: 4_000_000, maxFramerate: 30 }); break;
-          case '720p30': setQualityPreset({ maxBitrate: 2_500_000, maxFramerate: 30 }); break;
-          case '480p30': setQualityPreset({ maxBitrate: 1_000_000, maxFramerate: 30 }); break;
+          case '1080p30': setQualityPreset(ScreenSharePresets.h1080fps30.encoding); break;
+          case '720p30': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;
+          case '480p30': setQualityPreset({ maxBitrate: 800_000, maxFramerate: 30 }); break;
         }
       }
     };

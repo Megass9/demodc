@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { useLocalParticipant, MediaDeviceMenu, useParticipants, useIsSpeaking, useTrackVolume, useParticipantTracks, isTrackReference } from '@livekit/components-react';
+import { useLocalParticipant, MediaDeviceMenu, useParticipants, useIsSpeaking } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
-import { Participant, Track } from 'livekit-client';
+import { Participant } from 'livekit-client';
 import ScreenPickerModal from './ScreenPickerModal';
 
 interface GroupSidebarProps {
@@ -13,6 +13,18 @@ interface GroupSidebarProps {
   onChannelSelect: (channel: 'chat' | 'voice') => void;
   isInVoice: boolean;
   onLeaveVoice: () => void;
+}
+
+const DEFAULT_SCREEN_SHARE_QUALITY = 'auto';
+
+function getScreenShareResolution(quality: string) {
+  switch (quality) {
+    case '1080p60': return { width: 1920, height: 1080, frameRate: 60 };
+    case '1080p30': return { width: 1920, height: 1080, frameRate: 30 };
+    case '720p30': return { width: 1280, height: 720, frameRate: 30 };
+    case '480p30': return { width: 854, height: 480, frameRate: 30 };
+    default: return { width: 1280, height: 720, frameRate: 15 };
+  }
 }
 
 function ParticipantItem({ participant }: { participant: Participant }) {
@@ -124,7 +136,7 @@ function ScreenShareToggle() {
       return;
     }
 
-    const isElectron = typeof window !== 'undefined' && !!(window as any).electron;
+    const isElectron = typeof window !== 'undefined' && !!(window as unknown as { electron?: unknown }).electron;
     console.log('HandleToggle: isElectron:', isElectron, 'isEnabled:', isScreenShareEnabled);
     
     if (isElectron && !isScreenShareEnabled) {
@@ -134,12 +146,8 @@ function ScreenShareToggle() {
 
     try {
       console.log('Toggling screen share...');
-      const savedQuality = localStorage.getItem('screenShareQuality') || '1080p30';
-      const resolution = savedQuality === '1080p60' ? { width: 1920, height: 1080, frameRate: 60 } :
-                         savedQuality === '1080p30' ? { width: 1920, height: 1080, frameRate: 30 } :
-                         savedQuality === '720p30'  ? { width: 1280, height: 720, frameRate: 30 } :
-                         savedQuality === '480p30'  ? { width: 854, height: 480, frameRate: 30 } :
-                         undefined;
+      const savedQuality = localStorage.getItem('screenShareQuality') || DEFAULT_SCREEN_SHARE_QUALITY;
+      const resolution = getScreenShareResolution(savedQuality);
 
       await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { 
         audio: {
@@ -163,12 +171,8 @@ function ScreenShareToggle() {
       console.log('Setting source in Electron...');
       await window.electron.setSource(sourceId, shareAudio);
       
-      const savedQuality = localStorage.getItem('screenShareQuality') || '1080p30';
-      const resolution = savedQuality === '1080p60' ? { width: 1920, height: 1080, frameRate: 60 } :
-                         savedQuality === '1080p30' ? { width: 1920, height: 1080, frameRate: 30 } :
-                         savedQuality === '720p30'  ? { width: 1280, height: 720, frameRate: 30 } :
-                         savedQuality === '480p30'  ? { width: 854, height: 480, frameRate: 30 } :
-                         undefined;
+      const savedQuality = localStorage.getItem('screenShareQuality') || DEFAULT_SCREEN_SHARE_QUALITY;
+      const resolution = getScreenShareResolution(savedQuality);
 
       console.log('Enabling screen share in LiveKit with resolution:', resolution);
       await localParticipant.setScreenShareEnabled(true, { 
@@ -219,14 +223,10 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
   const [showSettings, setShowSettings] = useState(false);
   const participants = useParticipants().filter(p => !p.identity.startsWith('izleyici-'));
   const krisp = useKrispNoiseFilter();
-  const [screenQuality, setScreenQuality] = useState('1080p30');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('screenShareQuality');
-      if (saved) setScreenQuality(saved);
-    }
-  }, []);
+  const [screenQuality, setScreenQuality] = useState<string>(() => {
+    if (typeof window === 'undefined') return DEFAULT_SCREEN_SHARE_QUALITY;
+    return localStorage.getItem('screenShareQuality') || DEFAULT_SCREEN_SHARE_QUALITY;
+  });
 
   const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
