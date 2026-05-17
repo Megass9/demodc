@@ -34,8 +34,8 @@ const FloatingHearts = () => {
   );
 };
 
-// Ekran paylaşımı için daha dengeli bir varsayılan (720p 15fps)
-const DEFAULT_SCREEN_SHARE_CONFIG = ScreenSharePresets.h720fps15.encoding;
+// Ekran paylaşımı için daha düşük ve stabil bir varsayılan (360p 15fps)
+const DEFAULT_SCREEN_SHARE_CONFIG = ScreenSharePresets.h360fps15.encoding;
 
 export default function DiscordApp({ session }: DiscordAppProps) {
   const [activeChannel, setActiveChannel] = useState<'chat' | 'voice'>('chat');
@@ -50,7 +50,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
       const saved = localStorage.getItem('screenShareQuality');
       if (saved) {
         switch(saved) {
-          case 'auto': setQualityPreset(ScreenSharePresets.h720fps15.encoding); break;
+          case 'auto': setQualityPreset(ScreenSharePresets.h360fps15.encoding); break;
           case '1080p60': setQualityPreset({ maxBitrate: 6_000_000, maxFramerate: 60 }); break;
           case '1080p30': setQualityPreset(ScreenSharePresets.h1080fps30.encoding); break;
           case '720p30': setQualityPreset(ScreenSharePresets.h720fps30.encoding); break;

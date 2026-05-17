@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { useLocalParticipant, MediaDeviceMenu, useParticipants, useIsSpeaking } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
-import { Participant } from 'livekit-client';
+import { Participant, ScreenSharePresets } from 'livekit-client';
 import ScreenPickerModal from './ScreenPickerModal';
 
 interface GroupSidebarProps {
@@ -23,7 +23,22 @@ function getScreenShareResolution(quality: string) {
     case '1080p30': return { width: 1920, height: 1080, frameRate: 30 };
     case '720p30': return { width: 1280, height: 720, frameRate: 30 };
     case '480p30': return { width: 854, height: 480, frameRate: 30 };
-    default: return { width: 1280, height: 720, frameRate: 15 };
+    default: return { width: 640, height: 360, frameRate: 15 };
+  }
+}
+
+function getScreenShareEncoding(quality: string) {
+  switch (quality) {
+    case '1080p60':
+      return { maxBitrate: 6_000_000, maxFramerate: 60 };
+    case '1080p30':
+      return ScreenSharePresets.h1080fps30.encoding;
+    case '720p30':
+      return ScreenSharePresets.h720fps30.encoding;
+    case '480p30':
+      return { maxBitrate: 800_000, maxFramerate: 30 };
+    default:
+      return ScreenSharePresets.h360fps15.encoding;
   }
 }
 
@@ -149,14 +164,20 @@ function ScreenShareToggle() {
       const savedQuality = localStorage.getItem('screenShareQuality') || DEFAULT_SCREEN_SHARE_QUALITY;
       const resolution = getScreenShareResolution(savedQuality);
 
-      await localParticipant.setScreenShareEnabled(!isScreenShareEnabled, { 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
+      await localParticipant.setScreenShareEnabled(
+        !isScreenShareEnabled,
+        {
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          ...(resolution ? { resolution } : {})
         },
-        ...(resolution ? { resolution } : {})
-      });
+        {
+          screenShareEncoding: getScreenShareEncoding(savedQuality)
+        }
+      );
     } catch (err) {
       console.error('Ekran paylaşımı hatası:', err);
     }
@@ -175,14 +196,20 @@ function ScreenShareToggle() {
       const resolution = getScreenShareResolution(savedQuality);
 
       console.log('Enabling screen share in LiveKit with resolution:', resolution);
-      await localParticipant.setScreenShareEnabled(true, { 
-        audio: shareAudio ? {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        } : false,
-        ...(resolution ? { resolution } : {})
-      });
+      await localParticipant.setScreenShareEnabled(
+        true,
+        {
+          audio: shareAudio ? {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } : false,
+          ...(resolution ? { resolution } : {})
+        },
+        {
+          screenShareEncoding: getScreenShareEncoding(savedQuality)
+        }
+      );
     } catch (err) {
       console.error('Ekran paylaşımı başlatılamadı:', err);
     }
