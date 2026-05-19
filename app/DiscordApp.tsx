@@ -68,7 +68,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
 
   useEffect(() => {
     if (session) {
-      const currentUsername = session.user.email.split('@')[0];
+      const currentUsername = session.user.user_metadata?.display_name || session.user.email.split('@')[0];
       fetch(`/livekit?room=Genel Ses&username=${currentUsername}`)
         .then(res => res.json())
         .then(data => setVoiceToken(data.token))
@@ -76,7 +76,7 @@ export default function DiscordApp({ session }: DiscordAppProps) {
     }
   }, [session]);
 
-  const currentUsername = session.user.email.split('@')[0];
+  const currentUsername = session.user.user_metadata?.display_name || session.user.email.split('@')[0];
 
   const handleChannelSelect = (channel: 'chat' | 'voice') => {
     setActiveChannel(channel);

@@ -254,6 +254,23 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
     if (typeof window === 'undefined') return DEFAULT_SCREEN_SHARE_QUALITY;
     return localStorage.getItem('screenShareQuality') || DEFAULT_SCREEN_SHARE_QUALITY;
   });
+  const [editableUsername, setEditableUsername] = useState(username);
+
+  // Prop değiştiğinde (örneğin metadata güncellendiğinde) state'i senkronize et
+  useEffect(() => {
+    setEditableUsername(username);
+  }, [username]);
+
+  const handleUpdateUsername = async () => {
+    const { error } = await supabase.auth.updateUser({
+      data: { display_name: editableUsername }
+    });
+    if (error) {
+      alert("Hata: " + error.message);
+    } else {
+      alert("İsim başarıyla güncellendi!");
+    }
+  };
 
   const handleQualityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -407,6 +424,27 @@ export default function GroupSidebar({ username, activeChannel, onChannelSelect,
             </div>
             
             <div className="p-8 space-y-8 max-h-[65vh] overflow-y-auto custom-scrollbar bg-background">
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
+                   <span className="w-5 h-5 rounded bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-[10px]">👤</span> Kullanıcı Adı
+                </label>
+                <div className="panel rounded-xl p-4 flex flex-col gap-3">
+                  <input
+                    type="text"
+                    value={editableUsername}
+                    onChange={(e) => setEditableUsername(e.target.value)}
+                    className="w-full bg-background-secondary border border-border-subtle text-foreground p-2.5 rounded-lg text-sm font-medium focus:ring-2 focus:ring-accent-primary focus:border-accent-primary outline-none"
+                    placeholder="Yeni ismini yaz..."
+                  />
+                  <button
+                    onClick={handleUpdateUsername}
+                    className="w-full py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg text-xs font-bold transition-colors"
+                  >
+                    İSMİ KAYDET
+                  </button>
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-xs font-bold text-foreground-muted uppercase tracking-wider ml-1 flex items-center gap-2">
                    <span className="w-5 h-5 rounded bg-accent-primary/10 text-accent-primary flex items-center justify-center text-[10px]">⚙️</span> Ekran Paylaşım Kalitesi
